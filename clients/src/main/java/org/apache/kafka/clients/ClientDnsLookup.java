@@ -24,15 +24,15 @@ public enum ClientDnsLookup {
     USE_ALL_DNS_IPS("use_all_dns_ips"),
     RESOLVE_CANONICAL_BOOTSTRAP_SERVERS_ONLY("resolve_canonical_bootstrap_servers_only");
 
-    private String clientDnsLookup;
+    private String dnsLookup;
 
-    ClientDnsLookup(String clientDnsLookup) {
-        this.clientDnsLookup = clientDnsLookup;
+    ClientDnsLookup(String dnsLookup) {
+        this.dnsLookup = dnsLookup;
     }
 
     @Override
     public String toString() {
-        return clientDnsLookup;
+        return dnsLookup;
     }
 
     public static ClientDnsLookup forConfig(String config) {
