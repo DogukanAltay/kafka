@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A convenient base class for configurations to extend.
@@ -43,12 +42,8 @@ public class AbstractConfig {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    /**
-     * Configs for which values have been requested, used to detect unused configs.
-     * This set must be concurrent modifiable and iterable. It will be modified
-     * when directly accessed or as a result of RecordingMap access.
-     */
-    private final Set<String> used = ConcurrentHashMap.newKeySet();
+    /* configs for which values have been requested, used to detect unused configs */
+    private final Set<String> used;
 
     /* the original values passed in by the user */
     private final Map<String, ?> originals;
@@ -111,6 +106,7 @@ public class AbstractConfig {
 
         this.originals = resolveConfigVariables(configProviderProps, (Map<String, Object>) originals);
         this.values = definition.parse(this.originals);
+        this.used = Collections.synchronizedSet(new HashSet<>());
         Map<String, Object> configUpdates = postProcessParsedConfig(Collections.unmodifiableMap(this.values));
         for (Map.Entry<String, Object> update : configUpdates.entrySet()) {
             this.values.put(update.getKey(), update.getValue());
