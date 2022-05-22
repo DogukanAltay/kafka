@@ -382,33 +382,10 @@ public class FetchSessionHandler {
      */
     public boolean handleResponse(FetchResponse<?> response) {
         if (response.error() != Errors.NONE) {
-            log.info("Node {} was unable to process the fetch request with {}: {}.",
-                node, nextMetadata, response.error());
-            if (response.error() == Errors.FETCH_SESSION_ID_NOT_FOUND) {
-                nextMetadata = FetchMetadata.INITIAL;
-            } else {
-                nextMetadata = nextMetadata.nextCloseExisting();
-            }
+            this.handleErrorMetadata(response);
             return false;
         } else if (nextMetadata.isFull()) {
-            String problem = verifyFullFetchResponsePartitions(response);
-            if (problem != null) {
-                log.info("Node {} sent an invalid full fetch response with {}", node, problem);
-                nextMetadata = FetchMetadata.INITIAL;
-                return false;
-            } else if (response.sessionId() == INVALID_SESSION_ID) {
-                if (log.isDebugEnabled())
-                    log.debug("Node {} sent a full fetch response{}", node, responseDataToLogString(response));
-                nextMetadata = FetchMetadata.INITIAL;
-                return true;
-            } else {
-                // The server created a new incremental fetch session.
-                if (log.isDebugEnabled())
-                    log.debug("Node {} sent a full fetch response that created a new incremental " +
-                            "fetch session {}{}", node, response.sessionId(), responseDataToLogString(response));
-                nextMetadata = FetchMetadata.newIncremental(response.sessionId());
-                return true;
-            }
+            return this.handleFullMetadataResponse(response);
         } else {
             String problem = verifyIncrementalFetchResponsePartitions(response);
             if (problem != null) {
@@ -430,6 +407,37 @@ public class FetchSessionHandler {
                 nextMetadata = nextMetadata.nextIncremental();
                 return true;
             }
+        }
+    }
+
+    public boolean handleFullMetadataResponse(FetchResponse<?> response) {
+        String problem = verifyFullFetchResponsePartitions(response);
+        if (problem != null) {
+            log.info("Node {} sent an invalid full fetch response with {}", node, problem);
+            nextMetadata = FetchMetadata.INITIAL;
+            return false;
+        } else if (response.sessionId() == INVALID_SESSION_ID) {
+            if (log.isDebugEnabled())
+                log.debug("Node {} sent a full fetch response{}", node, responseDataToLogString(response));
+            nextMetadata = FetchMetadata.INITIAL;
+            return true;
+        } else {
+            // The server created a new incremental fetch session.
+            if (log.isDebugEnabled())
+                log.debug("Node {} sent a full fetch response that created a new incremental " +
+                        "fetch session {}{}", node, response.sessionId(), responseDataToLogString(response));
+            nextMetadata = FetchMetadata.newIncremental(response.sessionId());
+            return true;
+        }
+    }
+
+    public void handleErrorMetadata(FetchResponse<?> response) {
+        log.info("Node {} was unable to process the fetch request with {}: {}.",
+                node, nextMetadata, response.error());
+        if (response.error() == Errors.FETCH_SESSION_ID_NOT_FOUND) {
+            nextMetadata = FetchMetadata.INITIAL;
+        } else {
+            nextMetadata = nextMetadata.nextCloseExisting();
         }
     }
 
