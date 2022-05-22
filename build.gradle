@@ -43,16 +43,16 @@ buildscript {
   }
 }
 
+plugins {
+  id "org.sonarqube" version "3.3"
+}
+
 apply plugin: "com.diffplug.gradle.spotless"
 spotless {
   scala {
     target 'streams/**/*.scala'
     scalafmt("$versions.scalafmt").configFile('checkstyle/.scalafmt.conf')
   }
-}
-
-plugins {
-    id "org.sonarqube" version "3.3"
 }
 
 sonarqube {
