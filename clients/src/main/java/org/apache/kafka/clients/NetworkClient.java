@@ -81,6 +81,9 @@ public class NetworkClient implements KafkaClient {
         CLOSED
     }
 
+    private static final String REMOVE_NODE_LOG_MESSAGE = "Removing node {} from least loaded node selection since" +
+            " it is neither ready for sending or connecting";
+
     private final LogContext logContext;
 
     private final Logger log;
@@ -923,8 +926,7 @@ public class NetworkClient implements KafkaClient {
             } else if (canConnect(node, now)) {
                 foundCanConnect = node;
             } else {
-                log.trace("Removing node {} from least loaded node selection since it is neither ready " +
-                    "for sending or connecting", node);
+                log.trace(REMOVE_NODE_LOG_MESSAGE, node);
             }
         }
 
@@ -997,8 +999,7 @@ public class NetworkClient implements KafkaClient {
             } else if (canConnect(node, now)) {
                 pool.add(new CandidateNode(node, NodeState.CONNECTABLE, 0));
             } else {
-                log.trace("Removing node {} from least loaded node selection since it is neither ready " +
-                    "for sending or connecting", node);
+                log.trace(REMOVE_NODE_LOG_MESSAGE, node);
                 continue;
             }
 
@@ -1041,8 +1042,7 @@ public class NetworkClient implements KafkaClient {
                 log.trace("Found random least loaded connecting node {} with no active connection", node);
                 return node;
             } else {
-                log.trace("Removing node {} from least loaded node selection since it is neither ready " +
-                    "for sending or connecting", node);
+                log.trace(REMOVE_NODE_LOG_MESSAGE, node);
             }
         }
         log.trace("Least loaded node random selection failed to find an available node");
@@ -1068,8 +1068,7 @@ public class NetworkClient implements KafkaClient {
             } else if (canConnect(node, now)) {
                 pool.add(new CandidateNode(node, NodeState.CONNECTABLE, 0));
             } else {
-                log.trace("Removing node {} from least loaded node selection since it is neither ready " +
-                    "for sending or connecting", node);
+                log.trace(REMOVE_NODE_LOG_MESSAGE, node);
                 continue;
             }
 
