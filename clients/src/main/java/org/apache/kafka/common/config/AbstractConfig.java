@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A convenient base class for configurations to extend.
@@ -43,7 +44,7 @@ public class AbstractConfig {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     /* configs for which values have been requested, used to detect unused configs */
-    private final Set<String> used;
+    private final Set<String> used = ConcurrentHashMap.newKeySet();
 
     /* the original values passed in by the user */
     private final Map<String, ?> originals;
