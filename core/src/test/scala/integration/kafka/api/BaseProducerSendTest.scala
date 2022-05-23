@@ -78,8 +78,7 @@ abstract class BaseProducerSendTest extends KafkaServerTestHarness {
                                deliveryTimeoutMs: Int = 2 * 60 * 1000,
                                batchSize: Int = 16384,
                                compressionType: String = "none",
-                               maxBlockMs: Long = 60 * 1000L,
-                               bufferSize: Long = 1024L * 1024L): KafkaProducer[Array[Byte],Array[Byte]] = {
+                               maxBlockMs: Long = 60 * 1000L): KafkaProducer[Array[Byte],Array[Byte]] = {
     val producer = TestUtils.createProducer(brokerList,
       compressionType = compressionType,
       securityProtocol = securityProtocol,
@@ -87,9 +86,7 @@ abstract class BaseProducerSendTest extends KafkaServerTestHarness {
       saslProperties = clientSaslProperties,
       lingerMs = lingerMs,
       deliveryTimeoutMs = deliveryTimeoutMs,
-      maxBlockMs = maxBlockMs,
-      batchSize = batchSize,
-      bufferSize = bufferSize)
+      maxBlockMs = maxBlockMs)
     registerProducer(producer)
   }
 
