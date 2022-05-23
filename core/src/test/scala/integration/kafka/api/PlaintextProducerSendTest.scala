@@ -19,8 +19,11 @@ package kafka.api
 
 import java.util.Properties
 import java.util.concurrent.ExecutionException
+import java.util.concurrent.{ExecutionException, Future, TimeUnit}
+
 
 import kafka.log.LogConfig
+import kafka.server.Defaults
 import kafka.utils.TestUtils
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig, ProducerRecord}
 import org.apache.kafka.common.errors.{InvalidTimestampException, SerializationException}
@@ -153,12 +156,12 @@ class PlaintextProducerSendTest extends BaseProducerSendTest {
 
     def verifyMetadataNotAvailable(future: Future[RecordMetadata]): Unit = {
       assertTrue(future.isDone)  // verify future was completed immediately
-      assertEquals(classOf[TimeoutException], intercept[ExecutionException](future.get).getCause.getClass)
+      assertEquals(classOf[TimeoutException], assertThrows(classOf[ExecutionException], () => future.get).getCause.getClass)
     }
 
     def verifyBufferExhausted(future: Future[RecordMetadata]): Unit = {
       assertTrue(future.isDone)  // verify future was completed immediately
-      assertEquals(classOf[BufferExhaustedException], intercept[ExecutionException](future.get).getCause.getClass)
+      assertEquals(classOf[BufferExhaustedException], assertThrows(classOf[ExecutionException], () => future.get).getCause.getClass)
     }
 
     // Topic metadata not available, send should fail without blocking
@@ -194,7 +197,7 @@ class PlaintextProducerSendTest extends BaseProducerSendTest {
     assertEquals(record0.value.length, producer.send(record0).get.serializedValueSize)
 
     val record1 = new ProducerRecord(topic, new Array[Byte](0), new Array[Byte](valueSize + 1))
-    assertEquals(classOf[RecordTooLargeException], intercept[ExecutionException](producer.send(record1).get).getCause.getClass)
+    assertEquals(classOf[RecordTooLargeException], assertThrows(classOf[ExecutionException], () => producer.send(record1).get).getCause.getClass)
   }
 
 }
