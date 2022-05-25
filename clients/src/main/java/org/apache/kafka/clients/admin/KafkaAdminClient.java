@@ -475,6 +475,11 @@ public class KafkaAdminClient extends AdminClient {
             closeQuietly(selector, "Selector");
             closeQuietly(channelBuilder, "ChannelBuilder");
             throw new KafkaException("Failed to create new KafkaAdminClient", exc);
+        } finally {
+            assert channelBuilder != null;
+            channelBuilder.close();
+            assert networkClient != null;
+            networkClient.close();
         }
     }
 
