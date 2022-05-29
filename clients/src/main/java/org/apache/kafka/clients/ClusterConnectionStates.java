@@ -132,9 +132,8 @@ final class ClusterConnectionStates {
             // Move to next resolved address, or if addresses are exhausted, mark node to be re-resolved
             connectionState.moveToNextAddress();
             return;
-        } else if (connectionState != null) {
-            String temp = connectionState.host();
-            log.info("Hostname for node {} changed from {} to {}.", id, temp, host);
+        } else if (log.isInfoEnabled() && connectionState != null) {
+            log.info("Hostname for node {} changed from {} to {}.", id, connectionState.host(), host);
         }
 
         // Create a new NodeConnectionState if nodeState does not already contain one
