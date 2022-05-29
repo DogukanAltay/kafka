@@ -36,10 +36,10 @@ import java.util.Map;
 final class ClusterConnectionStates {
     private final long reconnectBackoffInitMs;
     private final long reconnectBackoffMaxMs;
-    private final static int RECONNECT_BACKOFF_EXP_BASE = 2;
     private final double reconnectBackoffMaxExp;
     private final Map<String, NodeConnectionState> nodeState;
     private final Logger log;
+    private static final int RECONNECT_BACKOFF_EXP_BASE = 2;
 
     public ClusterConnectionStates(long reconnectBackoffMs, long reconnectBackoffMaxMs, LogContext logContext) {
         this.log = logContext.logger(ClusterConnectionStates.class);
@@ -132,7 +132,7 @@ final class ClusterConnectionStates {
             // Move to next resolved address, or if addresses are exhausted, mark node to be re-resolved
             connectionState.moveToNextAddress();
             return;
-        } else if (connectionState != null) {
+        } else if (log.isInfoEnabled() && connectionState != null) {
             log.info("Hostname for node {} changed from {} to {}.", id, connectionState.host(), host);
         }
 
@@ -157,10 +157,10 @@ final class ClusterConnectionStates {
      * @param now the current time in ms
      */
     public void disconnected(String id, long now) {
-        NodeConnectionState nodeState = nodeState(id);
-        nodeState.state = ConnectionState.DISCONNECTED;
-        nodeState.lastConnectAttemptMs = now;
-        updateReconnectBackoff(nodeState);
+        NodeConnectionState nodeConnectionState = nodeState(id);
+        nodeConnectionState.state = ConnectionState.DISCONNECTED;
+        nodeConnectionState.lastConnectAttemptMs = now;
+        updateReconnectBackoff(nodeConnectionState);
     }
 
     /**
@@ -211,8 +211,8 @@ final class ClusterConnectionStates {
      * @param id the connection identifier
      */
     public void checkingApiVersions(String id) {
-        NodeConnectionState nodeState = nodeState(id);
-        nodeState.state = ConnectionState.CHECKING_API_VERSIONS;
+        NodeConnectionState nodeConnectionState = nodeState(id);
+        nodeConnectionState.state = ConnectionState.CHECKING_API_VERSIONS;
     }
 
     /**
@@ -220,10 +220,10 @@ final class ClusterConnectionStates {
      * @param id the connection identifier
      */
     public void ready(String id) {
-        NodeConnectionState nodeState = nodeState(id);
-        nodeState.state = ConnectionState.READY;
-        nodeState.authenticationException = null;
-        resetReconnectBackoff(nodeState);
+        NodeConnectionState nodeConnectionState = nodeState(id);
+        nodeConnectionState.state = ConnectionState.READY;
+        nodeConnectionState.authenticationException = null;
+        resetReconnectBackoff(nodeConnectionState);
     }
 
     /**
@@ -233,11 +233,11 @@ final class ClusterConnectionStates {
      * @param exception the authentication exception
      */
     public void authenticationFailed(String id, long now, AuthenticationException exception) {
-        NodeConnectionState nodeState = nodeState(id);
-        nodeState.authenticationException = exception;
-        nodeState.state = ConnectionState.AUTHENTICATION_FAILED;
-        nodeState.lastConnectAttemptMs = now;
-        updateReconnectBackoff(nodeState);
+        NodeConnectionState nodeConnectionState = nodeState(id);
+        nodeConnectionState.authenticationException = exception;
+        nodeConnectionState.state = ConnectionState.AUTHENTICATION_FAILED;
+        nodeConnectionState.lastConnectAttemptMs = now;
+        updateReconnectBackoff(nodeConnectionState);
     }
 
     /**
