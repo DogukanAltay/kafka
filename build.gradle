@@ -57,7 +57,10 @@ spotless {
 
 sonarqube {
     properties {
-        property "sonar.projectKey", "test"
+        property "sonar.projectKey", "sre"
+        property "sonar.login", "admin"
+        property "sonar.password", "123"
+        property "sonar.host.url", "http://localhost:9000"
     }
 }
 
